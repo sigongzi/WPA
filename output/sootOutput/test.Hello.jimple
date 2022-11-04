@@ -1,0 +1,56 @@
+public class test.Hello extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        test.Hello r0;
+
+        r0 := @this: test.Hello;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        benchmark.objects.A $r0, $r1, $r2, r4;
+        int $i0;
+        java.lang.String[] r3;
+
+        r3 := @parameter0: java.lang.String[];
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(1);
+
+        $r0 = new benchmark.objects.A;
+
+        specialinvoke $r0.<benchmark.objects.A: void <init>()>();
+
+        r4 = $r0;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(2);
+
+        $r1 = new benchmark.objects.A;
+
+        specialinvoke $r1.<benchmark.objects.A: void <init>()>();
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(3);
+
+        $r2 = new benchmark.objects.A;
+
+        specialinvoke $r2.<benchmark.objects.A: void <init>()>();
+
+        $i0 = lengthof r3;
+
+        if $i0 <= 1 goto label1;
+
+        r4 = $r1;
+
+     label1:
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(1, r4);
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(2, $r2);
+
+        return;
+    }
+}

@@ -1,0 +1,134 @@
+public class test.RecursionTest extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        test.RecursionTest r0;
+
+        r0 := @this: test.RecursionTest;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static void testme(benchmark.objects.B)
+    {
+        benchmark.objects.A $r0;
+        benchmark.objects.B r1;
+
+        r1 := @parameter0: benchmark.objects.B;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(7);
+
+        $r0 = new benchmark.objects.A;
+
+        specialinvoke $r0.<benchmark.objects.A: void <init>(benchmark.objects.B)>(r1);
+
+        staticinvoke <test.RecursionTest: void specialchange(benchmark.objects.A)>($r0);
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(8, $r0);
+
+        return;
+    }
+
+    public static void specialchange(benchmark.objects.A)
+    {
+        benchmark.objects.A $r0, $r1, r3;
+        benchmark.objects.B $r2, $r4;
+
+        r3 := @parameter0: benchmark.objects.A;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(4);
+
+        $r0 = new benchmark.objects.A;
+
+        specialinvoke $r0.<benchmark.objects.A: void <init>()>();
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(5);
+
+        $r1 = new benchmark.objects.A;
+
+        specialinvoke $r1.<benchmark.objects.A: void <init>()>();
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(6);
+
+        $r2 = new benchmark.objects.B;
+
+        specialinvoke $r2.<benchmark.objects.B: void <init>()>();
+
+        r3.<benchmark.objects.A: benchmark.objects.B f> = $r2;
+
+        staticinvoke <test.RecursionTest: void testme(benchmark.objects.B)>($r2);
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(5, $r0);
+
+        $r4 = $r1.<benchmark.objects.A: benchmark.objects.B f>;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(6, $r4);
+
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] r3;
+        benchmark.objects.A $r0, $r1, $r2, r5, r6;
+        benchmark.objects.B $r4;
+        int $i0, $i1;
+
+        r3 := @parameter0: java.lang.String[];
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(1);
+
+        $r0 = new benchmark.objects.A;
+
+        specialinvoke $r0.<benchmark.objects.A: void <init>()>();
+
+        r5 = $r0;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(2);
+
+        $r1 = new benchmark.objects.A;
+
+        specialinvoke $r1.<benchmark.objects.A: void <init>()>();
+
+        r6 = $r1;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void alloc(int)>(3);
+
+        $r2 = new benchmark.objects.A;
+
+        specialinvoke $r2.<benchmark.objects.A: void <init>()>();
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(1, $r0);
+
+        $i0 = lengthof r3;
+
+        if $i0 <= 1 goto label1;
+
+        r5 = $r1;
+
+     label1:
+        $i1 = lengthof r3;
+
+        if $i1 <= 2 goto label2;
+
+        r6 = $r2;
+
+     label2:
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(2, r5);
+
+        staticinvoke <test.RecursionTest: void specialchange(benchmark.objects.A)>($r2);
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(3, $r2);
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(4, r6);
+
+        $r4 = $r2.<benchmark.objects.A: benchmark.objects.B f>;
+
+        staticinvoke <benchmark.internal.BenchmarkN: void test(int,java.lang.Object)>(7, $r4);
+
+        return;
+    }
+}

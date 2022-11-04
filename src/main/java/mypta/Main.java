@@ -13,7 +13,9 @@ public class Main {
         String srcDirectory = args[0];
         String mainClass = args[1];
 
-        String[] taieArgs = new String[]{"-pp","-cp",srcDirectory,"-m",mainClass, "-a", "myAnderson"};
+
+        String[] taieArgs = new String[]{"-pp","-cp",srcDirectory,"-m",mainClass, "-a",
+                "mypta=name:Anderson"};
         pascal.taie.Main.main(taieArgs);
     }
 }

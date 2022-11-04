@@ -1,0 +1,16 @@
+optionsFile: null
+printHelp: false
+classPath: code/
+mainClass: test.RecursionTest
+inputClasses: []
+javaVersion: 17
+prependJVM: true
+allowPhantom: false
+worldBuilderClass: pascal.taie.frontend.soot.SootWorldBuilder
+preBuildIR: false
+scope: APP
+nativeModel: true
+planFile: null
+analyses:
+  mypta: name:Anderson
+onlyGenPlan: false

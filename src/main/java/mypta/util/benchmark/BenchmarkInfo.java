@@ -1,4 +1,4 @@
-package mypta;
+package mypta.util.benchmark;
 
 import pascal.taie.World;
 import pascal.taie.language.classes.JClass;

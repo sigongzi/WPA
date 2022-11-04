@@ -1,4 +1,11 @@
 package mypta.graph;
 
-public class MyField {
+import pascal.taie.language.classes.JField;
+
+public class MyField extends Pointer{
+
+    JField field;
+    public MyField(JField f) {
+        this.field = f;
+    }
 }

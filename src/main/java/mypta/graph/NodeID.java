@@ -1,4 +1,4 @@
-package mypta.util.graph;
+package mypta.graph;
 
 public class NodeID {
     int nodeId;

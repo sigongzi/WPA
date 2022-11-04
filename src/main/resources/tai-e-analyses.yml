@@ -1,0 +1,5 @@
+- description: whole-program pointer analysis
+  analysisClass: mypta.PointerAnalysis
+  id: mypta
+  options:
+    name: Anderson
