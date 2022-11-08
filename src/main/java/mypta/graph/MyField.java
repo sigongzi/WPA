@@ -8,4 +8,9 @@ public class MyField extends Pointer{
     public MyField(JField f) {
         this.field = f;
     }
+
+    @Override
+    public String getRef() {
+        return field.toString();
+    }
 }

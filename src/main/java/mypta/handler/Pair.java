@@ -16,4 +16,8 @@ public class Pair<T1,T2>{
         obj2 = b;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Pair: <OBJ1>.%s <OBJ2>.%s", obj1.toString(), obj2.toString());
+    }
 }

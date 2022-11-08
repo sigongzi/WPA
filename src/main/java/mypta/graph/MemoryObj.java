@@ -11,6 +11,7 @@ public class MemoryObj {
     ReferenceType type;
 
     MyField fieldPointer;
+    int id;
     public MemoryObj(BenchmarkId benchmarkId, ReferenceType type) {
         this.benchmarkId = benchmarkId;
         this.type = type;
@@ -29,5 +30,20 @@ public class MemoryObj {
     }
     public void setFieldPointer(MyField p) {
         this.fieldPointer = p;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        res.append("<memory object: id ");
+        res.append(this.id);
+        res.append(" benchmarkId ");
+        res.append(this.benchmarkId.getBenchmarkId());
+        res.append(">");
+        return res.toString();
     }
 }

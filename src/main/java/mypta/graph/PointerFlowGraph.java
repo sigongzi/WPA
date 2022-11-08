@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class PointerFlowGraph {
-    HashMap<Pointer, HashSet<Pointer>> outEdge;
+    public HashMap<Pointer, HashSet<Pointer>> outEdge;
 
-    HashSet<Pointer> totalPointer;
+    public HashSet<Pointer> totalPointer;
 
     HashMap<JMethod, MyMethod> getPointerByMethod;
 
@@ -20,14 +20,19 @@ public class PointerFlowGraph {
     HashMap<Var, MyVar> getPointerByVar;
 
     HashSet<MemoryObj> totalMemoryObject;
+    int totalPointerCount = 0;
+    int totalMemoryCount = 0;
 
     public PointerFlowGraph() {
 
         outEdge = new HashMap<>();
         totalPointer = new HashSet<>();
+        totalMemoryObject = new HashSet<>();
         getPointerByVar = new HashMap<>();
         getPointerByMethod = new HashMap<>();
         getPointerByField = new HashMap<>();
+        totalPointerCount = 0;
+        totalMemoryCount = 0;
     }
 
     public void addOutEdge(Pointer p1, Pointer p2) {
@@ -44,10 +49,13 @@ public class PointerFlowGraph {
     }
 
     public void addPointer(Pointer p) {
+
         totalPointer.add(p);
+        p.setId(++totalPointerCount);
     }
     public void addMemoryObject(MemoryObj mObj) {
         totalMemoryObject.add(mObj);
+        mObj.setId(++totalMemoryCount);
     }
     public void addPointerByMethod(MyMethod p, JMethod method) {
         getPointerByMethod.put(method, p);
@@ -68,13 +76,7 @@ public class PointerFlowGraph {
         return null;
     }
 
-    public MyMethod getPointerByMethodOrSet(JMethod method) {
-        MyMethod p = this.getPointerByMethod(method);
-        if (p != null) {
-            p = this.createByMethod(method);
-        }
-        return p;
-    }
+
     @Nullable
     public MyVar getPointerByVar(Var v) {
         if (getPointerByVar.containsKey(v)) {
@@ -90,44 +92,53 @@ public class PointerFlowGraph {
         }
         return null;
     }
-
-    public MyVar getPointerByVarOrSet(Var v) {
-        if (getPointerByVar.containsKey(v)) {
-            return getPointerByVar.get(v);
+    public MyMethod getPointerByMethodOrSet(JMethod method) {
+        MyMethod p = this.getPointerByMethod(method);
+        if (p == null) {
+            p = this.createByMethod(method);
+            this.addPointerByMethod(p, method);
         }
-        MyVar t = this.createByVar(v);
-        this.addPointerByVar(t, v);
-        return t;
+        return p;
     }
-
-    public MyField getPointerByFieldOrSet(JField f) {
-        MyField p = this.getPointerByField(f);
-        if (f == null) {
-            p = this.createByField(f);
-            this.addPointerByField(p, f);
+    public MyVar getPointerByVarOrSet(Var v) {
+        MyVar p = this.getPointerByVar(v);
+        if (p == null) {
+            p = this.createByVar(v);
+            this.addPointerByVar(p, v);
         }
         return p;
     }
 
-    public MyMethod createByMethod(JMethod m) {
+    public MyField getPointerByFieldOrSet(JField f) {
+        MyField p = this.getPointerByField(f);
+        if (p == null) {
+            p = this.createByField(f);
+            if (f != null) {
+                this.addPointerByField(p, f);
+            }
+        }
+        return p;
+    }
+
+    MyMethod createByMethod(JMethod m) {
         MyMethod p = new MyMethod(m);
         this.addPointer(p);
         return p;
     }
 
-    public MyVar createByVar(Var v) {
+    MyVar createByVar(Var v) {
         MyVar p = new MyVar(v);
         this.addPointer(p);
         return p;
     }
 
-    public MyField createByField(JField f) {
+    MyField createByField(JField f) {
         MyField p = new MyField(f);
         this.addPointer(p);
         return p;
     }
 
-    public MyField createByField() {
+    MyField createByField() {
         MyField p = new MyField(null);
         this.addPointer(p);
         return p;

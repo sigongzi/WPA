@@ -82,14 +82,33 @@ final class WorkList {
         return pointerEntries.isEmpty() && callEdges.isEmpty();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder("");
+        res.append(pointerEntries.toString());
+        res.append("\n");
+        res.append(callEdges.toString());
+        return res.toString();
+    }
+
     interface Entry {
     }
 
     record PointerEntry(Pointer pointer, PointsToSet pointsToSet)
             implements Entry {
+        @Override
+        public String toString() {
+            return String.format("Add a pointer %s, with point to set %s", pointer,
+                    pointsToSet);
+        }
     }
 
     record CallEdgeEntry(Pointer pointer, JMethod method)
             implements Entry {
+        @Override
+        public String toString() {
+            return String.format("Add a pointer %d, with point to set %s", pointer,
+                    method);
+        }
     }
 }

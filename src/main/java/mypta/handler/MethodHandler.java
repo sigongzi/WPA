@@ -15,6 +15,7 @@ import pascal.taie.language.classes.JMethod;
 
 public class MethodHandler {
     public static MethodSummary handleNewMethod(Solver solver, JMethod method) {
+        System.out.println("--Now enter the method handler---");
         MethodSummary res = new MethodSummary();
         res.setMethodParams(method.getIR().getParams());
         int benchmarkId = 0;
@@ -136,6 +137,7 @@ public class MethodHandler {
                 }
             }
         }
+        System.out.println("--Method handler ends---");
         return res;
     }
 }

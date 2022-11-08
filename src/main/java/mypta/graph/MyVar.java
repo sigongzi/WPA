@@ -44,4 +44,9 @@ public class MyVar extends Pointer {
     public  List<MyVar> getLoadFields() {
         return this.loadFields;
     }
+
+    @Override
+    public String getRef() {
+        return var.toString();
+    }
 }

@@ -12,4 +12,9 @@ public class TestId implements Comparable<TestId>{
     public int compareTo(TestId compareTestId) {
         return this.testId - compareTestId.testId;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d", this.testId);
+    }
 }

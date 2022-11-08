@@ -26,8 +26,9 @@ public class PointsToSet implements Copyable<PointsToSet> {
     }
 
     public PointsToSet allDiff(PointsToSet another) {
-        PointsToSet diff = this.copy();
-        diff.edge.removeAll(another.edge);
+        PointsToSet diff = another.copy();
+        diff.edge.removeAll(this.edge);
+
         return diff;
 
     }
@@ -45,5 +46,15 @@ public class PointsToSet implements Copyable<PointsToSet> {
     public PointsToSet copy()
     {
         return new PointsToSet(this); //invoke copy constructor
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder("<PointsToSet: ");
+        edge.forEach(memoryObj -> {
+            res.append(memoryObj.toString());
+        });
+        res.append(">");
+        return res.toString();
     }
 }

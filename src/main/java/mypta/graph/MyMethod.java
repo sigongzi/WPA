@@ -8,4 +8,9 @@ public class MyMethod extends Pointer{
     public MyMethod(JMethod method) {
         this.method = method;
     }
+
+    @Override
+    public String getRef() {
+        return method.toString();
+    }
 }
