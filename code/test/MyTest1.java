@@ -66,5 +66,5 @@ public class MyTest1 {
 300: 100 200 300
 9000: 9999
 10000: 3
-12345: #unk // 我们的程序不支持静态变量的分析
+12345: #unk // not support static variable
  */

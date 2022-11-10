@@ -4,9 +4,9 @@ import benchmark.internal.BenchmarkN;
 import benchmark.objects.A;
 import benchmark.objects.B;
 
-/* 多层域敏感，答案：
-    1: 200
-    2: 1001
+/*
+ * 1: 200
+ * 2: 1001
  */
 
 class Z {
