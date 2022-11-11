@@ -10,8 +10,10 @@ public class BenchmarkInfo {
     public static void initalize() {
         theInfo = new BenchmarkInfo();
         JClass benchmark = World.get().getClassHierarchy().getClass("benchmark.internal.BenchmarkN");
-        theInfo.test = benchmark.getDeclaredMethod("test");
-        theInfo.alloc = benchmark.getDeclaredMethod("alloc");
+        if (benchmark != null) {
+            theInfo.test = benchmark.getDeclaredMethod("test");
+            theInfo.alloc = benchmark.getDeclaredMethod("alloc");
+        }
     }
     public static BenchmarkInfo get() {
         return theInfo;

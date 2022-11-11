@@ -102,8 +102,11 @@ public class Anderson extends Solver{
                 PointsToSet pts = pEntry.pointsToSet();
 
                 InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                            "WORKLIST: process \n Pointer <%s> with \n Points to Set <%s>",
+                            p,pts);
+                /* InfoHandler.get().printMessage(InfoLevel.DEBUG,
                         "WORKLIST: process \n Pointer <%s> with \n Points to Set <%s>",
-                                p, pts);
+                                p, pts);*/
                 PointsToSet diff = propagate(p, pts);
                 InfoHandler.get().printMessage(InfoLevel.DEBUG,
                         "WORKLIST: process \n Pointer <%s> with \n Diff <%s>",
@@ -157,7 +160,9 @@ public class Anderson extends Solver{
             Var v2 = t.getSecond();
             Pointer p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
             Pointer p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
 
+                    "ADDREACHABLE: get a copy relationship from %s to %s", v1, v2);
             addPFGEdge(p2, p1);
         }
 
@@ -219,6 +224,7 @@ public class Anderson extends Solver{
             Var v2 = t.getSecond();
 
             MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,"FieldLoad: %s. field = %s", v1, v2);
             if (v1 != null) {
                 // not a static field
                 MyVar p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
@@ -293,7 +299,20 @@ public class Anderson extends Solver{
 
         }
     }
+    public void setVirtualParametersRelationship(Var thisVar, JMethod callee, List<Var> paraList) {
+        assert (paraList.size() == callee.getIR().getParams().size());
 
+        Iterator<Var> para = paraList.iterator();
+        Iterator<Var> iter_callee = callee.getIR().getParams().iterator();
+        addPFGEdge(pointerFlowGraph.getPointerByVarOrSet(thisVar),
+                pointerFlowGraph.getPointerByVarOrSet(callee.getIR().getThis()));
+        while (para.hasNext() && iter_callee.hasNext()) {
+            MyVar v1 = pointerFlowGraph.getPointerByVarOrSet(para.next());
+            MyVar v2 = pointerFlowGraph.getPointerByVarOrSet(iter_callee.next());
+            addPFGEdge(v1, v2);
+
+        }
+    }
     @Override
     public void addPFGEdge(Pointer p1, Pointer p2) {
         InfoHandler.get().printMessage(InfoLevel.DEBUG,
@@ -302,6 +321,8 @@ public class Anderson extends Solver{
         if (p1.getPointsToSet() != null) {
             propagate(p2, p1.getPointsToSet().copy());
         }
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "PFGGRAPH: now the pfg graph is %s", pointerFlowGraph);
     }
 
     @Override
@@ -313,7 +334,7 @@ public class Anderson extends Solver{
                         , invoke.getMethodRef());
 
                 if (callee != null) {
-                    setParametersRelationship(
+                    setVirtualParametersRelationship(v.getVar(),
                             callee, invoke.getInvokeExp().getArgs());
                     if (!reachableMethod.contains(callee)) {
                         addNewMethod(callee);
@@ -321,7 +342,7 @@ public class Anderson extends Solver{
                     Pointer p = pointerFlowGraph.getPointerByMethod(callee);
 
                     // add a node as function from this node to the var
-                    pointerFlowGraph.addOutEdge(p, v);
+                    addPFGEdge(p, v);
 
                 }
             });
@@ -338,8 +359,7 @@ public class Anderson extends Solver{
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
                     memoryObj.setFieldPointer(p);
                 }
-                pointerFlowGraph.addOutEdge(source ,p);
-                addPointsTo(memoryObj.getFieldPointer(), source.getPointsToSet().copy());
+                addPFGEdge(source ,p);
             });
         }
     }
@@ -365,9 +385,14 @@ public class Anderson extends Solver{
     @Override
     public PointsToSet propagate(Pointer p, PointsToSet set) {
         PointsToSet diff = getPointsToSetOf(p).allDiff(set);
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "ADD:Pointer: %s, DiffSet %s", p, diff);
+
+        p.addPointsToSet(diff);
         if (!diff.isEmpty()) {
-            pointerFlowGraph.getOutEdge(p).forEach(tar ->
-                    addPointsTo(tar, diff));
+            pointerFlowGraph.getOutEdge(p).forEach(tar -> {
+                    //InfoHandler.get().printMessage(InfoLevel.DEBUG, "ADD: %s %s", tar, diff);
+                    addPointsTo(tar, diff);
+            });
         }
         return diff;
     }
