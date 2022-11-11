@@ -49,6 +49,9 @@ public class Anderson extends Solver {
     }
 
     private void addNewMethod(JMethod method) {
+        if (reachableMethod.contains(method)) {
+            return;
+        }
         reachableMethod.add(method);
 
 
@@ -126,7 +129,11 @@ public class Anderson extends Solver {
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
-                    "PFG Pinter");
+                    "%s", workList.toString());
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "PFG Pointer");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
             pointerFlowGraph.totalPointer.forEach(pt -> InfoHandler.get().printMessage(InfoLevel.DEBUG, "%s", pt.toString()));
@@ -365,10 +372,8 @@ public class Anderson extends Solver {
                 if (callee != null) {
                     setVirtualParametersRelationship(v.getVar(),
                             callee, invoke.getInvokeExp().getArgs());
-                    InfoHandler.get().printMessage(InfoLevel.DEBUG, "%s %s\n",v, callee);
-                    if (!reachableMethod.contains(callee)) {
-                        addNewMethod(callee);
-                    }
+                    InfoHandler.get().printMessage(InfoLevel.DEBUG, "%s %s\n", v, callee);
+                    addNewMethod(callee);
                     Pointer p = pointerFlowGraph.getPointerByMethod(callee);
 
                     // add a node as function from this node to the var

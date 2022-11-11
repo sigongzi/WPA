@@ -71,7 +71,7 @@ final class WorkList {
         } else if (!pointerEntries.isEmpty()) {
             var it = pointerEntries.entrySet().iterator();
             var e = it.next();
-            it.remove();
+            pointerEntries.remove(e.getKey());
             return new PointerEntry(e.getKey(), e.getValue());
         } else {
             throw new NoSuchElementException();
@@ -98,7 +98,7 @@ final class WorkList {
             implements Entry {
         @Override
         public String toString() {
-            return String.format("Add a pointer %s, with point to set %s", pointer,
+            return String.format("<%s, %s>", pointer,
                     pointsToSet);
         }
     }

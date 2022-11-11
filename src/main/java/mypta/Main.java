@@ -2,6 +2,7 @@ package mypta;
 
 
 import mypta.solver.InfoHandler;
+import mypta.solver.InfoLevel;
 
 /**
  * @author ivory
@@ -16,6 +17,7 @@ public class Main {
         String mainClass = args[1];
 
         InfoHandler.setInfoHandler();
+        // InfoHandler.get().setInfoLevel(InfoLevel.INFO);
         String[] taieArgs = new String[]{"-pp","-cp",srcDirectory,"-m",mainClass, "-a",
                 "mypta=name:Anderson"};
         pascal.taie.Main.main(taieArgs);
