@@ -365,6 +365,7 @@ public class Anderson extends Solver {
                 if (callee != null) {
                     setVirtualParametersRelationship(v.getVar(),
                             callee, invoke.getInvokeExp().getArgs());
+                    InfoHandler.get().printMessage(InfoLevel.DEBUG, "%s %s\n",v, callee);
                     if (!reachableMethod.contains(callee)) {
                         addNewMethod(callee);
                     }
@@ -389,6 +390,7 @@ public class Anderson extends Solver {
                 MyField p = memoryObj.getFieldPointer();
                 if (p == null) {
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
+                    p.setMemoryObject(memoryObj);
                     memoryObj.setFieldPointer(p);
                 }
                 addPFGEdge(source, p);
@@ -404,6 +406,7 @@ public class Anderson extends Solver {
                 MyField p = memoryObj.getFieldPointer();
                 if (p == null) {
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
+                    p.setMemoryObject(memoryObj);
                     memoryObj.setFieldPointer(p);
                 }
 
