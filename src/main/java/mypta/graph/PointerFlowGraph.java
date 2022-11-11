@@ -45,7 +45,10 @@ public class PointerFlowGraph {
         if(outEdge.containsKey(p)) {
             return outEdge.get(p);
         }
-        else return new HashSet<>();
+        else {
+            outEdge.put(p, new HashSet<>());
+            return outEdge.get(p);
+        }
     }
 
     public void addPointer(Pointer p) {

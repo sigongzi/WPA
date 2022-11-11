@@ -27,11 +27,7 @@ import mypta.graph.PointsToSet;
 import mypta.handler.Pair;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.ArrayDeque;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * Represents work list in pointer analysis.
@@ -41,7 +37,7 @@ final class WorkList {
     /**
      * Pointer entries to be processed.
      */
-    private final Map<Pointer, PointsToSet> pointerEntries = new LinkedHashMap<>();
+    private final Map<Pointer, PointsToSet> pointerEntries = new HashMap<>();
 
     /**
      * Call edges to be processed.

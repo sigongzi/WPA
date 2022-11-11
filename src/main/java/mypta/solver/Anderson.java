@@ -39,6 +39,8 @@ public class Anderson extends Solver {
     }
 
     private void addPointsTo(Pointer pointer, PointsToSet pts) {
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "ADD:Pointer: %s, DiffSet %s", pointer, pts);
         workList.addEntry(pointer, pts);
     }
 
@@ -112,9 +114,12 @@ public class Anderson extends Solver {
                 InfoHandler.get().printMessage(InfoLevel.DEBUG,
                         "WORKLIST: process \n Pointer <%s> with \n Diff <%s>",
                         p, diff);
+                p.addPointsToSet(diff);
+
                 if (!diff.isEmpty() && p instanceof MyVar myvar) {
                     // In Anderson Collapse the Field
-                    myvar.addPointsToSet(diff);
+                    InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                            "WORKLIST: pointer %s has %s",myvar, myvar.getStoreFields());
                     processStore(myvar, pts);
                     processLoad(myvar, pts);
                     processCall(myvar, pts);
@@ -241,7 +246,7 @@ public class Anderson extends Solver {
             if (v2 != null) {
                 // not a static field
                 MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
-
+                InfoHandler.get().printMessage(InfoLevel.DEBUG, "FieldLoad: %s = %s.field", p1, p2);
                 p2.addLoadFields(p1);
                 processLoad(p2, p2.getPointsToSet());
             } else {
@@ -257,11 +262,11 @@ public class Anderson extends Solver {
             Var v2 = t.getSecond();
 
             MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
-            InfoHandler.get().printMessage(InfoLevel.DEBUG, "FieldLoad: %s. field = %s", v1, v2);
+
             if (v1 != null) {
                 // not a static field
                 MyVar p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
-
+                InfoHandler.get().printMessage(InfoLevel.DEBUG, "FieldStore: %s.field = %s", p1, p2);
                 p1.addStoreFields(p2);
                 processStore(p1, p1.getPointsToSet());
             } else {
@@ -355,7 +360,7 @@ public class Anderson extends Solver {
                 "ADDPFGEDGE: add a edge from %s to %s", p1, p2);
         pointerFlowGraph.addOutEdge(p1, p2);
         if (p1.getPointsToSet() != null) {
-            propagate(p2, p1.getPointsToSet().copy());
+            addPointsTo(p2, p1.getPointsToSet().copy());
         }
         InfoHandler.get().printMessage(InfoLevel.DEBUG,
                 "PFGGRAPH: now the pfg graph is %s", pointerFlowGraph);
@@ -425,13 +430,20 @@ public class Anderson extends Solver {
     @Override
     public PointsToSet propagate(Pointer p, PointsToSet set) {
         PointsToSet diff = getPointsToSetOf(p).allDiff(set);
-        InfoHandler.get().printMessage(InfoLevel.DEBUG, "ADD:Pointer: %s, DiffSet %s", p, diff);
 
-        p.addPointsToSet(diff);
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "PROPAGATE: pointer %s, pointstoset %s", p, set);
+
+
         if (!diff.isEmpty()) {
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "PROPAGATE: pointer %s, edge %s", p, pointerFlowGraph.getOutEdge(p));
             pointerFlowGraph.getOutEdge(p).forEach(tar -> {
                 //InfoHandler.get().printMessage(InfoLevel.DEBUG, "ADD: %s %s", tar, diff);
                 addPointsTo(tar, diff);
+
+                InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                        "PROPAGATE: %s", workList.toString());
             });
         }
         return diff;
