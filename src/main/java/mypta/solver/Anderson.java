@@ -18,8 +18,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 
-public class Anderson extends Solver{
-
+public class Anderson extends Solver {
 
 
     public Anderson() {
@@ -29,7 +28,6 @@ public class Anderson extends Solver{
 
         this.workList = new WorkList();
     }
-
 
 
     private PointsToSet getPointsToSetOf(Pointer pointer) {
@@ -60,6 +58,7 @@ public class Anderson extends Solver{
         // add the return value to the pointer
         workList.addEntry(p, method);
     }
+
     @Override
     public PointerAnalysisResult getResult() {
         ArrayList<Pair<TestId, HashSet<BenchmarkId>>> res = new ArrayList<>();
@@ -67,9 +66,9 @@ public class Anderson extends Solver{
         for (Pair<TestId, MyVar> t : this.testSet) {
             HashSet<BenchmarkId> a = new HashSet<>();
             t.getSecond().getPointsToSet().getMemoryObject().forEach(
-                memoryObj -> {
-                    a.add(memoryObj.getBenchmarkId());
-                }
+                    memoryObj -> {
+                        a.add(memoryObj.getBenchmarkId());
+                    }
 
             );
             res.add(new Pair<>(t.getFirst(), a));
@@ -86,10 +85,12 @@ public class Anderson extends Solver{
         System.out.println("now the worklist is:");
         System.out.println(workList.toString());
     }
+
     @Override
     public void analyze() {
 
-        while(!workList.isEmpty()) {
+        while (!workList.isEmpty()) {
+            System.out.print("\n\n\n\n\n");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
@@ -103,11 +104,11 @@ public class Anderson extends Solver{
 
                 InfoHandler.get().printMessage(InfoLevel.DEBUG,
                         "WORKLIST: process \n Pointer <%s> with \n Points to Set <%s>",
-                                p, pts);
+                        p, pts);
                 PointsToSet diff = propagate(p, pts);
                 InfoHandler.get().printMessage(InfoLevel.DEBUG,
                         "WORKLIST: process \n Pointer <%s> with \n Diff <%s>",
-                                p, diff);
+                        p, diff);
                 if (!diff.isEmpty() && p instanceof MyVar myvar) {
                     // In Anderson Collapse the Field
                     myvar.addPointsToSet(diff);
@@ -124,11 +125,28 @@ public class Anderson extends Solver{
                     "WORKLIST: process a worklist entry ends");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "PFG Pinter");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
+            pointerFlowGraph.totalPointer.forEach(pt -> InfoHandler.get().printMessage(InfoLevel.DEBUG, "%s", pt.toString()));
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "PFG Edge");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
+            pointerFlowGraph.outEdge.forEach((pt, pts) -> {
+                pts.forEach(ptTo -> InfoHandler.get().printMessage(InfoLevel.DEBUG, "<%d, %d>", pt.getId(), ptTo.getId()));
+            });
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
         }
     }
 
     /**
      * add a new method with parsing the intermediate method
+     *
      * @param method
      */
     @Override
@@ -140,9 +158,7 @@ public class Anderson extends Solver{
         MethodSummary summary = MethodHandler.handleNewMethod(this, method);
 
 
-
-
-        for(Pair<Var, MemoryObj> t: summary.newRel) {
+        for (Pair<Var, MemoryObj> t : summary.newRel) {
             Var v = t.getFirst();
             MemoryObj mObj = t.getSecond();
             pointerFlowGraph.addMemoryObject(mObj);
@@ -152,7 +168,7 @@ public class Anderson extends Solver{
             addPointsTo(p, mObj);
         }
 
-        for(Pair<Var, Var> t: summary.copyRel) {
+        for (Pair<Var, Var> t : summary.copyRel) {
             Var v1 = t.getFirst();
             Var v2 = t.getSecond();
             Pointer p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
@@ -161,7 +177,7 @@ public class Anderson extends Solver{
             addPFGEdge(p2, p1);
         }
 
-        for(Pair<Var, Var> t: summary.castRel) {
+        for (Pair<Var, Var> t : summary.castRel) {
             Var v1 = t.getFirst();
             Var v2 = t.getSecond();
             Pointer p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
@@ -171,7 +187,7 @@ public class Anderson extends Solver{
 
         }
 
-        for(Pair<Var, Pair<Var, Var>> t : summary.arrayLoad) {
+        for (Pair<Var, Pair<Var, Var>> t : summary.arrayLoad) {
             Var v1 = t.getFirst();
             Var v2 = t.getSecond().getFirst();
 
@@ -182,7 +198,7 @@ public class Anderson extends Solver{
             processLoad(p2, p2.getPointsToSet());
         }
 
-        for(Pair<Pair<Var, Var>, Var> t : summary.arrayStore) {
+        for (Pair<Pair<Var, Var>, Var> t : summary.arrayStore) {
             Var v1 = t.getFirst().getFirst();
             Var v2 = t.getSecond();
 
@@ -194,7 +210,7 @@ public class Anderson extends Solver{
             processStore(p1, p1.getPointsToSet());
         }
 
-        for(Pair<Var, Pair<Var, JField>> t : summary.fieldLoad) {
+        for (Pair<Var, Pair<Var, JField>> t : summary.fieldLoad) {
             Var v1 = t.getFirst();
             Var v2 = t.getSecond().getFirst();
 
@@ -214,7 +230,7 @@ public class Anderson extends Solver{
             }
         }
 
-        for(Pair<Pair<Var, JField>, Var> t : summary.fieldStore) {
+        for (Pair<Pair<Var, JField>, Var> t : summary.fieldStore) {
             Var v1 = t.getFirst().getFirst();
             Var v2 = t.getSecond();
 
@@ -234,7 +250,7 @@ public class Anderson extends Solver{
         }
         // call relationship is useless because we add invoke statement to the variable
 
-        for(Map.Entry<Var, ArrayList<Invoke>> entry : summary.invokes.entrySet()) {
+        for (Map.Entry<Var, ArrayList<Invoke>> entry : summary.invokes.entrySet()) {
             Var v1 = entry.getKey();
             MyVar p = pointerFlowGraph.getPointerByVarOrSet(v1);
             p.addInvokes(entry.getValue());
@@ -244,8 +260,8 @@ public class Anderson extends Solver{
 
         if (!summary.returnVar.isEmpty()) {
             MyMethod m = pointerFlowGraph.getPointerByMethodOrSet(method);
-            for(Var v : summary.returnVar) {
-                Pointer p1= pointerFlowGraph.getPointerByVarOrSet(v);
+            for (Var v : summary.returnVar) {
+                Pointer p1 = pointerFlowGraph.getPointerByVarOrSet(v);
                 addPFGEdge(p1, m);
             }
         }
@@ -338,14 +354,14 @@ public class Anderson extends Solver{
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
                     memoryObj.setFieldPointer(p);
                 }
-                pointerFlowGraph.addOutEdge(source ,p);
+                pointerFlowGraph.addOutEdge(source, p);
                 addPointsTo(memoryObj.getFieldPointer(), source.getPointsToSet().copy());
             });
         }
     }
 
     public void processLoad(MyVar v, PointsToSet pts) {
-        for(MyVar target : v.getLoadFields()) {
+        for (MyVar target : v.getLoadFields()) {
             pts.getMemoryObject().forEach(memoryObj -> {
                 InfoHandler.get().printMessage(InfoLevel.DEBUG,
                         "PROCESSLOAD: %s load from the memoryObj %s's field", target, memoryObj);

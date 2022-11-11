@@ -35,6 +35,9 @@ public abstract class Pointer {
     public PointerType getType() {
         return type;
     }
+    public int getId() {
+        return id;
+    }
     void setId(int id) {
         this.id = id;
     }
@@ -42,6 +45,6 @@ public abstract class Pointer {
     public abstract String getRef();
     @Override
     public String toString() {
-        return String.format("<Pointer PointerId: %d PointerRef: %s>", id, this.getRef());
+        return String.format("<%d, %s>", id, this.getRef());
     }
 }
