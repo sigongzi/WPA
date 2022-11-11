@@ -45,20 +45,20 @@ public class MethodHandler {
                 else if(a instanceof LoadField load) {
                     if (load.getFieldAccess() instanceof InstanceFieldAccess ifa) {
                         // maybe nullable
-                        res.addFieldLoad(load.getLValue(), ifa.getBase(), ifa.getFieldRef().resolveNullable());
+                        res.addFieldLoad(load.getLValue(), ifa.getBase(), ifa.getFieldRef().resolve());
                     }
                     else if(load.getFieldAccess() instanceof StaticFieldAccess sfa) {
-                        res.addFieldLoad(load.getLValue(), null, sfa.getFieldRef().resolveNullable());
+                        res.addFieldLoad(load.getLValue(), null, sfa.getFieldRef().resolve());
                     }
                 }
                 else if(a instanceof StoreField store) {
                     JField field = store.getFieldRef().resolve();
                     if (store.getFieldAccess() instanceof InstanceFieldAccess ifa) {
                         // maybe nullable
-                        res.addFieldStore(ifa.getBase(), ifa.getFieldRef().resolveNullable(),store.getRValue());
+                        res.addFieldStore(ifa.getBase(), ifa.getFieldRef().resolve(),store.getRValue());
                     }
                     else if(store.getFieldAccess() instanceof StaticFieldAccess sfa) {
-                        res.addFieldStore(null, sfa.getFieldRef().resolveNullable(), store.getRValue());
+                        res.addFieldStore(null, sfa.getFieldRef().resolve(), store.getRValue());
                     }
                 }
                 else if(a instanceof LoadArray load) {
@@ -102,7 +102,8 @@ public class MethodHandler {
                         JMethod m = is.getMethodRef().resolveNullable();
                         if (m != null && m.getDeclaringClass() ==
                                 World.get().getMainMethod().getDeclaringClass()) {
-                            res.addStaticMethod(m);
+                            res.addStaticMethod(i);
+
                         }
 
                     }

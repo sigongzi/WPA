@@ -11,6 +11,7 @@ public class MyField extends Pointer{
 
     @Override
     public String getRef() {
+        if (field == null) return "null field";
         return field.toString();
     }
 }

@@ -5,6 +5,7 @@ import fj.Hash;
 import mypta.graph.MemoryObj;
 import mypta.util.benchmark.BenchmarkId;
 import mypta.util.benchmark.TestId;
+import pascal.taie.ir.exp.InvokeStatic;
 import pascal.taie.ir.exp.Var;
 import pascal.taie.ir.proginfo.MethodRef;
 import pascal.taie.ir.stmt.Invoke;
@@ -23,7 +24,7 @@ import java.util.Map;
 public class MethodSummary {
     public HashSet<Var> methodParams;
     public HashSet<Var> returnVar;
-    public HashSet<JMethod> newStaticMethod;
+    public HashSet<Invoke> newStaticMethod;
     public HashSet<Pair<TestId, Var>> testSet;
 
     public HashMap<BenchmarkId, MemoryObj> allocMap;
@@ -31,7 +32,7 @@ public class MethodSummary {
 
     public HashSet<Pair<Var, Var>> castRel;
     public HashSet<Pair<Var, MemoryObj>> newRel;
-    public HashSet<Pair<Var, Pair<Var,JMethod>>> callRel;
+    public HashSet<Pair<Var, Pair<Var,MethodRef>>> callRel;
 
     public HashSet<Pair<Var, Pair<Var, JField>>> fieldLoad;
 
@@ -96,15 +97,15 @@ public class MethodSummary {
     public void addArrayLoad(Var a, Var base, Var index) {
         arrayLoad.add(new Pair<>(a, new Pair<>(base, index)));
     }
-    public void addArrayStore(Var a, Var base, Var index) {
+    public void addArrayStore(Var base, Var index, Var a) {
         arrayStore.add(new Pair<>(new Pair<>(base, index), a));
     }
 
     public void addCastRelation(Var a, Var b) {
         castRel.add(new Pair<>(a, b));
     }
-    public void addStaticMethod(JMethod m) {
-        newStaticMethod.add(m);
+    public void addStaticMethod(Invoke i) {
+        newStaticMethod.add(i);
     }
     public void addTestMap(TestId t,Var a) {
         testSet.add(new Pair<>(t, a));

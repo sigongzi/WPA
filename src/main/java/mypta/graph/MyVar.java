@@ -47,6 +47,6 @@ public class MyVar extends Pointer {
 
     @Override
     public String getRef() {
-        return var.toString();
+        return String.format("%s from %s", var.toString(), var.getMethod().toString());
     }
 }
