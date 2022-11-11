@@ -157,6 +157,19 @@ public class Anderson extends Solver {
                 "ADDREACHABLE: start a new method process %s", method);
         MethodSummary summary = MethodHandler.handleNewMethod(this, method);
 
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "----------------------------------------------");
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "newRel: %s", summary.newRel.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "copyRel: %s", summary.copyRel.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "castRel: %s", summary.castRel.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "arrayLoad: %s", summary.arrayLoad.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "arrayStore: %s", summary.arrayStore.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "testSet: %s", summary.testSet.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "fieldLoad: %s", summary.fieldLoad.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "fieldStore: %s", summary.fieldStore.toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "invoke: %s", summary.invokes.entrySet().toString());
+        InfoHandler.get().printMessage(InfoLevel.DEBUG, "staticMethod: %s", summary.newStaticMethod.toString());
+
 
         for (Pair<Var, MemoryObj> t : summary.newRel) {
             Var v = t.getFirst();
@@ -237,7 +250,7 @@ public class Anderson extends Solver {
             Var v2 = t.getSecond();
 
             MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
-            InfoHandler.get().printMessage(InfoLevel.DEBUG,"FieldLoad: %s. field = %s", v1, v2);
+            InfoHandler.get().printMessage(InfoLevel.DEBUG, "FieldLoad: %s. field = %s", v1, v2);
             if (v1 != null) {
                 // not a static field
                 MyVar p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
@@ -257,6 +270,7 @@ public class Anderson extends Solver {
             Var v1 = entry.getKey();
             MyVar p = pointerFlowGraph.getPointerByVarOrSet(v1);
             p.addInvokes(entry.getValue());
+            processCall(p, p.getPointsToSet());
         }
 
         // add return value for this JMethod
@@ -312,6 +326,7 @@ public class Anderson extends Solver {
 
         }
     }
+
     public void setVirtualParametersRelationship(Var thisVar, JMethod callee, List<Var> paraList) {
         assert (paraList.size() == callee.getIR().getParams().size());
 
@@ -326,6 +341,7 @@ public class Anderson extends Solver {
 
         }
     }
+
     @Override
     public void addPFGEdge(Pointer p1, Pointer p2) {
         InfoHandler.get().printMessage(InfoLevel.DEBUG,
@@ -355,7 +371,10 @@ public class Anderson extends Solver {
                     Pointer p = pointerFlowGraph.getPointerByMethod(callee);
 
                     // add a node as function from this node to the var
-                    addPFGEdge(p, v);
+                    Var r = invoke.getLValue();
+                    if (r != null) {
+                        addPFGEdge(p, pointerFlowGraph.getPointerByVarOrSet(r));
+                    }
 
                 }
             });
@@ -372,7 +391,7 @@ public class Anderson extends Solver {
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
                     memoryObj.setFieldPointer(p);
                 }
-                addPFGEdge(source ,p);
+                addPFGEdge(source, p);
             });
         }
     }
@@ -403,8 +422,8 @@ public class Anderson extends Solver {
         p.addPointsToSet(diff);
         if (!diff.isEmpty()) {
             pointerFlowGraph.getOutEdge(p).forEach(tar -> {
-                    //InfoHandler.get().printMessage(InfoLevel.DEBUG, "ADD: %s %s", tar, diff);
-                    addPointsTo(tar, diff);
+                //InfoHandler.get().printMessage(InfoLevel.DEBUG, "ADD: %s %s", tar, diff);
+                addPointsTo(tar, diff);
             });
         }
         return diff;

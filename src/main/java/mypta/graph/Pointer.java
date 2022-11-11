@@ -41,9 +41,6 @@ public abstract class Pointer {
     void setId(int id) {
         this.id = id;
     }
-    public int getId() {
-        return id;
-    }
     public abstract String getRef();
     @Override
     public String toString() {

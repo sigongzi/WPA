@@ -37,7 +37,7 @@ public class PointerAnalysisResult {
             String append = String.format("%d: %s\n", t.getFirst().getTestId(),
                     String.join(" ", tmp.stream().map(id ->
                         String.format("%d", id.getBenchmarkId())
-                    ).toList())
+                    ).distinct().toList())
             );
             res = res + append;
         }
