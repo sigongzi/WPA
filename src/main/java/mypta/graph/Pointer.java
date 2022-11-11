@@ -45,6 +45,6 @@ public abstract class Pointer {
     public abstract String getRef();
     @Override
     public String toString() {
-        return String.format("<%d, %s>", id, this.getRef());
+        return String.format("%d[\"%s\"]", id, this.getRef());
     }
 }

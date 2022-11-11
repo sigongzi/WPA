@@ -137,7 +137,7 @@ public class Anderson extends Solver {
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
             pointerFlowGraph.outEdge.forEach((pt, pts) -> {
-                pts.forEach(ptTo -> InfoHandler.get().printMessage(InfoLevel.DEBUG, "<%d, %d>", pt.getId(), ptTo.getId()));
+                pts.forEach(ptTo -> InfoHandler.get().printMessage(InfoLevel.DEBUG, "%d --> %d", pt.getId(), ptTo.getId()));
             });
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
