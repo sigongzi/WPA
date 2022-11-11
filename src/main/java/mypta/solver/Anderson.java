@@ -9,14 +9,13 @@ import mypta.util.benchmark.TestId;
 import mypta.util.misc.PointerAnalysisResult;
 import pascal.taie.World;
 import pascal.taie.ir.exp.Var;
+import pascal.taie.ir.stmt.InstanceOf;
 import pascal.taie.ir.stmt.Invoke;
 import pascal.taie.language.classes.JField;
 import pascal.taie.language.classes.JMethod;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.lang.reflect.Parameter;
+import java.util.*;
 
 
 public class Anderson extends Solver{
@@ -89,20 +88,29 @@ public class Anderson extends Solver{
     }
     @Override
     public void analyze() {
+
         while(!workList.isEmpty()) {
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "WORKLIST: process a worklist entry");
             WorkList.Entry entry = workList.pollEntry();
             if (entry instanceof WorkList.PointerEntry pEntry) {
-                System.out.println(String.format("pointer entry %s", pEntry.toString()));
+                InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                        "WORKLIST: get a pointer entry");
                 Pointer p = pEntry.pointer();
                 PointsToSet pts = pEntry.pointsToSet();
+
+                InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                        "WORKLIST: process \n Pointer <%s> with \n Points to Set <%s>",
+                                p, pts);
                 PointsToSet diff = propagate(p, pts);
-                System.out.println(String.format("DIFF set %s", diff.toString()));
+                InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                        "WORKLIST: process \n Pointer <%s> with \n Diff <%s>",
+                                p, diff);
                 if (!diff.isEmpty() && p instanceof MyVar myvar) {
                     // In Anderson Collapse the Field
                     myvar.addPointsToSet(diff);
-                    System.out.println(String.format("MYVAR pointer: %s pointstoset: %s",
-                            myvar.toString(),
-                            getPointsToSetOf(myvar).toString()));
                     processStore(myvar, pts);
                     processLoad(myvar, pts);
                     processCall(myvar, pts);
@@ -110,6 +118,12 @@ public class Anderson extends Solver{
             } else if (entry instanceof WorkList.CallEdgeEntry cEntry) {
                 addReachable(cEntry.method());
             }
+
+
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "WORKLIST: process a worklist entry ends");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "--------------------------");
         }
     }
 
@@ -119,11 +133,12 @@ public class Anderson extends Solver{
      */
     @Override
     public void addReachable(JMethod method) {
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "----------------------------------------------");
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "ADDREACHABLE: start a new method process %s", method);
         MethodSummary summary = MethodHandler.handleNewMethod(this, method);
 
-        System.out.println(summary.newRel.toString());
-        System.out.println(summary.copyRel.toString());
-        System.out.println(summary.testSet.toString());
 
 
 
@@ -132,6 +147,8 @@ public class Anderson extends Solver{
             MemoryObj mObj = t.getSecond();
             pointerFlowGraph.addMemoryObject(mObj);
             Pointer p = pointerFlowGraph.getPointerByVarOrSet(v);
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "ADDREACHABLE: get a new object %s from %s", mObj, method);
             addPointsTo(p, mObj);
         }
 
@@ -141,10 +158,7 @@ public class Anderson extends Solver{
             Pointer p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
             Pointer p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
 
-            pointerFlowGraph.addOutEdge(p2, p1);
-            if (p2.getPointsToSet() != null) {
-                addPointsTo(p1, p2.getPointsToSet().copy());
-            }
+            addPFGEdge(p2, p1);
         }
 
         for(Pair<Var, Var> t: summary.castRel) {
@@ -153,10 +167,8 @@ public class Anderson extends Solver{
             Pointer p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
             Pointer p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
 
-            pointerFlowGraph.addOutEdge(p2, p1);
-            if (p2.getPointsToSet() != null) {
-                addPointsTo(p1, p2.getPointsToSet().copy());
-            }
+            addPFGEdge(p2, p1);
+
         }
 
         for(Pair<Var, Pair<Var, Var>> t : summary.arrayLoad) {
@@ -167,6 +179,7 @@ public class Anderson extends Solver{
             MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
 
             p2.addLoadFields(p1);
+            processLoad(p2, p2.getPointsToSet());
         }
 
         for(Pair<Pair<Var, Var>, Var> t : summary.arrayStore) {
@@ -175,8 +188,10 @@ public class Anderson extends Solver{
 
             MyVar p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
             MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
-
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "ADDREACHABLE: array store to %s with value %s", v1, v2);
             p1.addStoreFields(p2);
+            processStore(p1, p1.getPointsToSet());
         }
 
         for(Pair<Var, Pair<Var, JField>> t : summary.fieldLoad) {
@@ -190,13 +205,12 @@ public class Anderson extends Solver{
                 MyVar p2 = pointerFlowGraph.getPointerByVarOrSet(v2);
 
                 p2.addLoadFields(p1);
+                processLoad(p2, p2.getPointsToSet());
             } else {
                 // a static field
+                assert (t.getSecond().getSecond() != null);
                 MyField p2 = pointerFlowGraph.getPointerByFieldOrSet(t.getSecond().getSecond());
-                pointerFlowGraph.addOutEdge(p2, p1);
-                if (p2.getPointsToSet() != null) {
-                    addPointsTo(p1, p2.getPointsToSet().copy());
-                }
+                addPFGEdge(p2, p1);
             }
         }
 
@@ -210,15 +224,15 @@ public class Anderson extends Solver{
                 MyVar p1 = pointerFlowGraph.getPointerByVarOrSet(v1);
 
                 p1.addStoreFields(p2);
+                processStore(p1, p1.getPointsToSet());
             } else {
                 // a static field
+                assert (t.getFirst().getSecond() != null);
                 MyField p1 = pointerFlowGraph.getPointerByFieldOrSet(t.getFirst().getSecond());
-                pointerFlowGraph.addOutEdge(p2, p1);
-                if(p2.getPointsToSet() != null) {
-                    addPointsTo(p1, p2.getPointsToSet().copy());
-                }
+                addPFGEdge(p2, p1);
             }
         }
+        // call relationship is useless because we add invoke statement to the variable
 
         for(Map.Entry<Var, ArrayList<Invoke>> entry : summary.invokes.entrySet()) {
             Var v1 = entry.getKey();
@@ -232,10 +246,7 @@ public class Anderson extends Solver{
             MyMethod m = pointerFlowGraph.getPointerByMethodOrSet(method);
             for(Var v : summary.returnVar) {
                 Pointer p1= pointerFlowGraph.getPointerByVarOrSet(v);
-                pointerFlowGraph.addOutEdge(p1,m);
-                if (p1.getPointsToSet() != null) {
-                    addPointsTo(m, p1.getPointsToSet().copy());
-                }
+                addPFGEdge(p1, m);
             }
         }
 
@@ -243,28 +254,67 @@ public class Anderson extends Solver{
             MyVar p = pointerFlowGraph.getPointerByVarOrSet(t.getSecond());
             this.testSet.add(new Pair<>(t.getFirst(), p));
         }
-        System.out.println(String.format("the worklist is %s", workList.toString()));
 
-        System.out.println(String.format("the pointerflowgraph the pointer set is %s",
-            this.pointerFlowGraph.totalPointer.toString()));
-        System.out.println(String.format("the pointerflowgraph the edge set is %s",
-                this.pointerFlowGraph.outEdge.toString()));
 
-        System.out.println(String.format("the test set is %s", this.testSet.toString()));
+        // add process for static method
+
+        for (Invoke t : summary.newStaticMethod) {
+            Var v = t.getLValue();
+            JMethod callee = t.getRValue().getMethodRef().resolve();
+            List<Var> para_list = t.getRValue().getArgs();
+            MyMethod m_pointer = pointerFlowGraph.getPointerByMethodOrSet(callee);
+            // add this method to worklist
+            addNewMethod(callee);
+            setParametersRelationship(callee, para_list);
+            if (v != null) {
+                MyVar v_pointer = pointerFlowGraph.getPointerByVarOrSet(v);
+                addPFGEdge(m_pointer, v_pointer);
+            }
+        }
+
+
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "ADDREACHABLE: end a new method process %s", method);
+
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "----------------------------------------------");
+
+    }
+
+    public void setParametersRelationship(JMethod callee, List<Var> paraList) {
+        assert (paraList.size() == callee.getIR().getParams().size());
+
+        Iterator<Var> para = paraList.iterator();
+        Iterator<Var> iter_callee = callee.getIR().getParams().iterator();
+        while (para.hasNext() && iter_callee.hasNext()) {
+            MyVar v1 = pointerFlowGraph.getPointerByVarOrSet(para.next());
+            MyVar v2 = pointerFlowGraph.getPointerByVarOrSet(iter_callee.next());
+            addPFGEdge(v1, v2);
+
+        }
     }
 
     @Override
     public void addPFGEdge(Pointer p1, Pointer p2) {
+        InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                "ADDPFGEDGE: add a edge from %s to %s", p1, p2);
         pointerFlowGraph.addOutEdge(p1, p2);
+        if (p1.getPointsToSet() != null) {
+            propagate(p2, p1.getPointsToSet().copy());
+        }
     }
 
     @Override
     public void processCall(MyVar v, PointsToSet pts) {
         for (Invoke invoke : v.getInvokes()) {
             pts.getMemoryObject().forEach(memoryObj -> {
+
                 JMethod callee = World.get().getClassHierarchy().dispatch(memoryObj.getType()
                         , invoke.getMethodRef());
+
                 if (callee != null) {
+                    setParametersRelationship(
+                            callee, invoke.getInvokeExp().getArgs());
                     if (!reachableMethod.contains(callee)) {
                         addNewMethod(callee);
                     }
@@ -281,6 +331,8 @@ public class Anderson extends Solver{
     public void processStore(MyVar v, PointsToSet pts) {
         for (MyVar source : v.getStoreFields()) {
             pts.getMemoryObject().forEach(memoryObj -> {
+                InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                        "PROCESSSTORE:%s store the memoryObj %s's field", source, memoryObj);
                 MyField p = memoryObj.getFieldPointer();
                 if (p == null) {
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
@@ -295,21 +347,23 @@ public class Anderson extends Solver{
     public void processLoad(MyVar v, PointsToSet pts) {
         for(MyVar target : v.getLoadFields()) {
             pts.getMemoryObject().forEach(memoryObj -> {
+                InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                        "PROCESSLOAD: %s load from the memoryObj %s's field", target, memoryObj);
                 MyField p = memoryObj.getFieldPointer();
                 if (p == null) {
                     p = pointerFlowGraph.getPointerByFieldOrSet(null);
                     memoryObj.setFieldPointer(p);
                 }
-                pointerFlowGraph.addOutEdge(p, target);
-                addPointsTo(target, p.getPointsToSet().copy());
+
+
+                addPFGEdge(p, target);
+
             });
         }
     }
 
     @Override
     public PointsToSet propagate(Pointer p, PointsToSet set) {
-        System.out.println(String.format("the pointstoset is %s", getPointsToSetOf(p).toString()));
-        System.out.println(String.format("the newly added is %s", set.toString()));
         PointsToSet diff = getPointsToSetOf(p).allDiff(set);
         if (!diff.isEmpty()) {
             pointerFlowGraph.getOutEdge(p).forEach(tar ->
