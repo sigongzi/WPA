@@ -265,7 +265,7 @@ public class Anderson extends Solver{
             MyMethod m_pointer = pointerFlowGraph.getPointerByMethodOrSet(callee);
             // add this method to worklist
             addNewMethod(callee);
-            setParametersRelationship(method, callee, para_list);
+            setParametersRelationship(callee, para_list);
             if (v != null) {
                 MyVar v_pointer = pointerFlowGraph.getPointerByVarOrSet(v);
                 addPFGEdge(m_pointer, v_pointer);
@@ -281,7 +281,7 @@ public class Anderson extends Solver{
 
     }
 
-    public void setParametersRelationship(JMethod caller, JMethod callee, List<Var> paraList) {
+    public void setParametersRelationship(JMethod callee, List<Var> paraList) {
         assert (paraList.size() == callee.getIR().getParams().size());
 
         Iterator<Var> para = paraList.iterator();
@@ -313,7 +313,7 @@ public class Anderson extends Solver{
                         , invoke.getMethodRef());
 
                 if (callee != null) {
-                    setParametersRelationship(v.getVar().getMethod(),
+                    setParametersRelationship(
                             callee, invoke.getInvokeExp().getArgs());
                     if (!reachableMethod.contains(callee)) {
                         addNewMethod(callee);
