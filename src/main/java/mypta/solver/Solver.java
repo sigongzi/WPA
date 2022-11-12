@@ -29,7 +29,6 @@ public abstract class Solver {
     protected HashSet<Pair<TestId, MyVar>> testSet;
 
     public void solve() {
-        System.out.println("the analysis begins");
         this.initialize();
         this.analyze();
     }

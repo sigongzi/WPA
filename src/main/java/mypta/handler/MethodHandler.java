@@ -106,10 +106,11 @@ public class MethodHandler {
                     Exp e = i.getInvokeExp();
                     Var v = i.getLValue();
                     // Var may be null here
+                    String mainclass = World.get().getMainMethod().getDeclaringClass().toString();
+                    mainclass = mainclass.substring(0, mainclass.indexOf("."));
                     if (e instanceof InvokeStatic is) {
                         JMethod m = is.getMethodRef().resolveNullable();
-                        if (m != null && m.getDeclaringClass() ==
-                                World.get().getMainMethod().getDeclaringClass()) {
+                        if (m != null && (m.getDeclaringClass().toString().indexOf(mainclass) != -1)) {
                             res.addStaticMethod(i);
 
                         }

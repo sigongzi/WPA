@@ -84,18 +84,16 @@ public class Anderson extends Solver {
 
     @Override
     public void initialize() {
-        System.out.println("the initialize begins");
         // add the main Method
         this.addNewMethod(World.get().getMainMethod());
-        System.out.println("now the worklist is:");
-        System.out.println(workList.toString());
     }
 
     @Override
     public void analyze() {
 
         while (!workList.isEmpty()) {
-            System.out.print("\n\n\n\n\n");
+            InfoHandler.get().printMessage(InfoLevel.DEBUG,
+                    "\n\n\n\n\n");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
                     "--------------------------");
             InfoHandler.get().printMessage(InfoLevel.DEBUG,
@@ -119,7 +117,7 @@ public class Anderson extends Solver {
                 if (!diff.isEmpty() && p instanceof MyVar myvar) {
                     // In Anderson Collapse the Field
                     InfoHandler.get().printMessage(InfoLevel.DEBUG,
-                            "WORKLIST: pointer %s has %s",myvar, myvar.getStoreFields());
+                            "WORKLIST: pointer %s has %s", myvar, myvar.getStoreFields());
                     processStore(myvar, pts);
                     processLoad(myvar, pts);
                     processCall(myvar, pts);
@@ -310,6 +308,10 @@ public class Anderson extends Solver {
             MyMethod m_pointer = pointerFlowGraph.getPointerByMethodOrSet(callee);
             // add this method to worklist
             addNewMethod(callee);
+            JMethod clinit = callee.getDeclaringClass().getClinit();
+            if (clinit != null) {
+                    addNewMethod(clinit);
+            }
             setParametersRelationship(callee, para_list);
             if (v != null) {
                 MyVar v_pointer = pointerFlowGraph.getPointerByVarOrSet(v);

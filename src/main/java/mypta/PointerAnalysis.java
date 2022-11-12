@@ -32,8 +32,6 @@ public class PointerAnalysis extends ProgramAnalysis<PointerAnalysisResult> {
 
     @Override
     public PointerAnalysisResult analyze() {
-        System.out.println("now enter the analysis");
-
         BenchmarkInfo.initalize();
 
         AnalysisOptions options = getOptions();
