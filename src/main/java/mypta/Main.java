@@ -18,6 +18,7 @@ public class Main {
 
         InfoHandler.setInfoHandler();
         InfoHandler.get().setInfoLevel(InfoLevel.INFO);
+//        System.out.println(args[1]);
         String[] taieArgs = new String[]{"-pp","-cp",srcDirectory,"-m",mainClass, "-a",
                 "mypta=name:Anderson"};
         pascal.taie.Main.main(taieArgs);

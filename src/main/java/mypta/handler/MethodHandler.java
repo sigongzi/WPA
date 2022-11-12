@@ -23,7 +23,7 @@ public class MethodHandler {
         method.getIR().forEach(stmt -> {
             boolean isBenchMark = false;
             if (stmt instanceof Invoke i) {
-                JMethod invokeMethod = i.getMethodRef().resolve();
+                JMethod invokeMethod = i.getMethodRef().resolveNullable();
                 if (invokeMethod != null && (invokeMethod.equals(BenchmarkInfo.get().getAlloc()) || invokeMethod.equals(BenchmarkInfo.get().getTest()))) {
                     isBenchMark = true;
                 }
@@ -60,17 +60,17 @@ public class MethodHandler {
                 } else if (a instanceof LoadField load) {
                     if (load.getFieldAccess() instanceof InstanceFieldAccess ifa) {
                         // maybe nullable
-                        res.addFieldLoad(load.getLValue(), ifa.getBase(), ifa.getFieldRef().resolve());
+                        res.addFieldLoad(load.getLValue(), ifa.getBase(), ifa.getFieldRef().resolveNullable());
                     } else if (load.getFieldAccess() instanceof StaticFieldAccess sfa) {
-                        res.addFieldLoad(load.getLValue(), null, sfa.getFieldRef().resolve());
+                        res.addFieldLoad(load.getLValue(), null, sfa.getFieldRef().resolveNullable());
                     }
                 } else if (a instanceof StoreField store) {
-                    JField field = store.getFieldRef().resolve();
+                    JField field = store.getFieldRef().resolveNullable();
                     if (store.getFieldAccess() instanceof InstanceFieldAccess ifa) {
                         // maybe nullable
-                        res.addFieldStore(ifa.getBase(), ifa.getFieldRef().resolve(), store.getRValue());
+                        res.addFieldStore(ifa.getBase(), ifa.getFieldRef().resolveNullable(), store.getRValue());
                     } else if (store.getFieldAccess() instanceof StaticFieldAccess sfa) {
-                        res.addFieldStore(null, sfa.getFieldRef().resolve(), store.getRValue());
+                        res.addFieldStore(null, sfa.getFieldRef().resolveNullable(), store.getRValue());
                     }
                 } else if (a instanceof LoadArray load) {
                     Var base = load.getArrayAccess().getBase();
@@ -82,7 +82,7 @@ public class MethodHandler {
                     res.addArrayStore(base, index, store.getRValue());
                 }
             } else if (s instanceof Invoke i) {
-                JMethod invokeMethod = i.getMethodRef().resolve();
+                JMethod invokeMethod = i.getMethodRef().resolveNullable();
                 boolean isBenchMark = false;
                 if (invokeMethod != null) {
                     if (invokeMethod.equals(BenchmarkInfo.get().getAlloc())) {
