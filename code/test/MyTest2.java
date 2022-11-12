@@ -4,9 +4,9 @@ import benchmark.internal.BenchmarkN;
 import benchmark.objects.A;
 import benchmark.objects.B;
 
-class Z {
+class Z_2 {
     A a;
-    public Z(A _a) {
+    public Z_2(A _a) {
         a = _a;
     }
 };
@@ -28,11 +28,11 @@ public class MyTest2 {
         A a3 = new A(b3);
 
         BenchmarkN.alloc(1);
-        Z z1 = new Z(a1);
+        Z_2 z1 = new Z_2(a1);
         BenchmarkN.alloc(2);
-        Z z2 = new Z(a2);
+        Z_2 z2 = new Z_2(a2);
         BenchmarkN.alloc(3);
-        Z z3 = new Z(a3);
+        Z_2 z3 = new Z_2(a3);
 
 
         if (args.length > 1) a1 = a3;

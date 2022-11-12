@@ -41,10 +41,10 @@ public class mytest1600012710 {
         BenchmarkN.test(7, arr);       // 4
         
         BenchmarkN.alloc(8);
-        Z z1 = new Z();
-        Z z2 = z1;
+        Z_0 z1 = new Z_0();
+        Z_0 z2 = z1;
         BenchmarkN.alloc(9);
-        z2.f = new Z();
+        z2.f = new Z_0();
         BenchmarkN.test(8, z1.f);      // 9
         
     }
@@ -74,6 +74,6 @@ class K2 extends K1 {}
 class K3 extends K2 { public A get() {return g;} }
 class K4 extends K3 { public A get() {return h;} }
 
-class Z {
-    public Z f;
+class Z_0 {
+    public Z_0 f;
 }

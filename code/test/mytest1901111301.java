@@ -9,9 +9,9 @@ import benchmark.objects.B;
  * 2: 1001
  */
 
-class Z {
+class Z_1 {
   A a;
-  public Z(A _a) {
+  public Z_1(A _a) {
     a = _a;
   }
 };
@@ -25,7 +25,7 @@ public class mytest1901111301 {
     A a1 = new A(b1);
 
     BenchmarkN.alloc(1);
-    Z z1 = new Z(a1);
+    Z_1 z1 = new Z_1(a1);
 
     BenchmarkN.alloc(200);
     B b200 = new B();
